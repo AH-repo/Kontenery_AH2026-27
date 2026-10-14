@@ -34,9 +34,13 @@ jobs:
           context: .
           load: true
           tags: test-image:${{ github.sha }}
-
       - name: Run test container
-        run: docker run --rm test-image:${{ github.sha }}
+        run: |
+          docker run -d --name test-container test-image:${{ github.sha }}
+          sleep 5
+          docker logs test-container
+          docker inspect -f '{{.State.Running}}' test-container | grep true
+          docker rm -f test-container
 
   publish:
     name: Publish Docker image
